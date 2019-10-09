@@ -2,15 +2,20 @@ package cmd
 
 import (
 	"strings"
-	"super_catfacts/common"
 
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
+var AppName = "Super Catfacts Service"
+
 var log = logrus.New()
-var cfgFile, twilioAPIKey, twilioSid, port, bindPort, logLevel string
+
+// Config is the central configuration object
+var Config Configuration
+
+var cfgFile, twilioAPIKey, twilioSid, port, loglevel string
 var msgIntervalSeconds int
 var verbose bool
 
@@ -23,7 +28,6 @@ var rootCmd = &cobra.Command{
 
 // Execute - application entrypoint
 func Execute() {
-	log.Debug("Executing")
 	if err := rootCmd.Execute(); err != nil {
 		log.Debug(err)
 		return
@@ -32,6 +36,13 @@ func Execute() {
 
 func init() {
 	cobra.OnInitialize(initConfig)
+
+	// Set config defaults
+	viper.SetDefault("port", "8080")
+
+	viper.SetDefault("loglevel", "debug")
+
+	viper.SetDefault("interval", 30)
 
 	rootCmd.PersistentFlags().StringVarP(&twilioAPIKey, "apikey", "k", "", "Twilio API Key (Required)")
 
@@ -42,6 +53,8 @@ func init() {
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Verbose mode assists with debugging by dumping setup and conifguration info")
 
 	rootCmd.PersistentFlags().IntVarP(&msgIntervalSeconds, "interval", "i", 30, "Number of seconds to wait between attack messages")
+
+	rootCmd.PersistentFlags().StringVarP(&loglevel, "loglevel", "l", "debug", "Log Level")
 
 	viper.BindPFlag("apikey", rootCmd.PersistentFlags().Lookup("apikey"))
 
@@ -55,13 +68,14 @@ func init() {
 
 func initConfig() {
 
+	// TODO remove after dev
 	var cfgLogLevel = logrus.DebugLevel
 
 	if verbose {
 		cfgLogLevel = logrus.DebugLevel
 	}
 
-	switch strings.ToLower(logLevel) {
+	switch strings.ToLower(viper.GetString("loglevel")) {
 	case "trace":
 		cfgLogLevel = logrus.TraceLevel
 	case "debug":
@@ -80,12 +94,9 @@ func initConfig() {
 
 	log.SetLevel(cfgLogLevel)
 
-	if cfgFile != "" {
-		viper.SetConfigFile(cfgFile)
-	} else {
-		viper.SetConfigName("config")
-		viper.AddConfigPath(".")
-	}
+	// Look for a config file in the working directory
+	viper.SetConfigName("config")
+	viper.AddConfigPath(".")
 
 	viper.AutomaticEnv()
 	viper.SetEnvPrefix("super_catfacts")
@@ -93,36 +104,37 @@ func initConfig() {
 	if err := viper.ReadInConfig(); err == nil {
 		log.Debug("Using config file:", viper.ConfigFileUsed())
 
-		marshalErr := viper.Unmarshal(&common.Configuration)
+		marshalErr := viper.Unmarshal(&Config)
 		if marshalErr != nil {
 			log.Fatal("Unable to decode config into struct %v", marshalErr)
 		}
 
 		log.Debug("Read config file successfully")
-		log.Debug("Admins are %v", common.Configuration.Server.Admins)
+		log.Debug("Admins are %v", Config.Server.Admins)
 	} else {
 		log.Debug("Error reading config file: %v", err)
 	}
 
 	if verbose {
-		log.Debug("Configuration is :%v", common.Configuration)
+		log.Debug("Config is :%v", Config)
 	}
 }
 
 // Perform validation and initialization on required arguments
 func persistentPreRun(cmd *cobra.Command, args []string) {
 
-	if common.Configuration.Twilio.APIKey != "" {
-		twilioAPIKey = common.Configuration.Twilio.APIKey
+	if Config.Twilio.APIKey != "" {
+		twilioAPIKey = Config.Twilio.APIKey
 	} else {
 		twilioAPIKey = viper.GetString("apikey")
 	}
+
 	if twilioAPIKey == "" {
 		log.Fatal("Twilio API Key is a required argument")
 	}
 
-	if common.Configuration.Twilio.SID != "" {
-		twilioSid = common.Configuration.Twilio.SID
+	if Config.Twilio.SID != "" {
+		twilioSid = Config.Twilio.SID
 	} else {
 		twilioSid = viper.GetString("sid")
 	}
@@ -131,22 +143,15 @@ func persistentPreRun(cmd *cobra.Command, args []string) {
 		log.Fatal("Twilio SID is a required argument")
 	}
 
-	/*if common.Configuration.Twilio.MsgIntervalSeconds != nil {
-		msgIntervalSeconds = common.Configuration.Twilio.MsgIntervalSeconds
-	} else {
-		msgIntervalSeconds = viper.GetInt("interval")
-	} */
-
-	if common.Configuration.Server.Port != "" {
-		bindPort = common.Configuration.Server.Port
-	} else {
-		bindPort = viper.GetString("port")
+	if Config.Twilio.MsgIntervalSeconds == 0 {
+		Config.Twilio.MsgIntervalSeconds = viper.GetInt("interval")
 	}
 
-	if bindPort == "" {
-		log.Debug("No port supplied. Defaulting to listing on ", common.DefaultPort)
-		bindPort = common.DefaultPort
+	if Config.Server.Port != "" {
+		port = Config.Server.Port
+	} else {
+		port = viper.GetString("port")
 	}
-	common.Configuration.Server.Port = ":" + bindPort
+	Config.Server.Port = ":" + port
 
 }

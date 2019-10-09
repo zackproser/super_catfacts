@@ -1,6 +1,8 @@
 package main
 
-import "super_catfacts/cmd"
+import (
+	"super_catfacts/cmd"
+)
 
 func main() {
 	cmd.Execute()

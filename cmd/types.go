@@ -1,0 +1,43 @@
+package cmd
+
+import "time"
+
+type AttackManager struct {
+	repository []*Attack
+}
+
+type Attack struct {
+	ID        int       `json:id`
+	Target    string    `json:target`
+	StartTime time.Time `json:starttime`
+	MsgCount  int       `json:msgcount`
+	Ticker    time.Ticker
+}
+
+type AttackResponse struct {
+	ID        int       `json:id`
+	Target    string    `json:target`
+	StartTime time.Time `json:starttime`
+	MsgCount  int       `json:msgcount`
+}
+
+type Catfacts struct {
+	Facts []string
+}
+
+type Configuration struct {
+	Server ServerConfiguration
+	Twilio TwilioConfiguration
+}
+
+type TwilioConfiguration struct {
+	Number             string
+	APIKey             string
+	SID                string
+	MsgIntervalSeconds int
+}
+
+type ServerConfiguration struct {
+	Port   string
+	Admins []string
+}

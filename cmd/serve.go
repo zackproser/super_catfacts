@@ -4,10 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strings"
-	"super_catfacts/common"
-	"super_catfacts/manager"
-	"super_catfacts/types"
+	"strconv"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -15,7 +12,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-var attackMgr *manager.AttackManager
+var attackMgr *AttackManager
 
 func init() {
 	rootCmd.AddCommand(serveCommand)
@@ -25,21 +22,21 @@ var serveCommand = &cobra.Command{
 	Use:   "serve",
 	Short: "Run a Super Catfacts service",
 	Run: func(cmd *cobra.Command, args []string) {
-		log.Debug(common.AppName + " listening on " + common.Configuration.Server.Port)
+		log.Debug(AppName + " listening on " + Config.Server.Port)
 		initServer()
 	},
 }
 
 func HealthCheck(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	fmt.Fprintf(w, common.AppName+" up and running")
+	fmt.Fprintf(w, AppName+" up and running")
 }
 
 func GetAttacks(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
-	var attackResponses []*types.AttackResponse
+	var attackResponses []*AttackResponse
 	atks := attackMgr.List()
 	for _, atk := range atks {
-		attackResponses = append(attackResponses, &types.AttackResponse{
+		attackResponses = append(attackResponses, &AttackResponse{
 			ID:        atk.ID,
 			Target:    atk.Target,
 			StartTime: atk.StartTime,
@@ -66,14 +63,14 @@ func CreateAttack(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		return
 	}
 
-	attack, err := attackMgr.Add(&types.Attack{
+	attack, err := attackMgr.Add(&Attack{
 		Target:    target,
 		StartTime: time.Now(),
 	})
 
 	if err == nil {
 
-		atkResponse := &types.AttackResponse{
+		atkResponse := &AttackResponse{
 			ID:        attack.ID,
 			Target:    attack.Target,
 			StartTime: attack.StartTime,
@@ -91,25 +88,21 @@ func CreateAttack(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	}
 }
 
-func StopAttack(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+func StopAttack(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
-	err := r.ParseForm()
+	attackID := ps.ByName("id")
+
+	if attackID == "" {
+		fmt.Fprintf(w, "Must provide a valid ID of an existing attack")
+	}
+
+	attackIDInt, err := strconv.Atoi(attackID)
+
 	if err != nil {
-		log.Debug("Unable to read POST values from request")
+		log.Debug("Error converting attack ID string to int: %v", err)
 	}
 
-	for k, v := range r.Form {
-		log.Debug("key: " + k)
-		log.Debug("value: " + strings.Join(v, ""))
-	}
-
-	target := r.Form.Get("target")
-	if target == "" {
-		fmt.Fprintf(w, "You must supply a valid target")
-		return
-	}
-
-	success, attack := attackMgr.Remove(target)
+	success, attack := attackMgr.RemoveByID(attackIDInt)
 
 	if success {
 		fmt.Fprintf(w, "Successfully stopped atttack on "+attack.Target)
@@ -120,7 +113,9 @@ func StopAttack(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 func initServer() {
 
-	attackMgr = new(manager.AttackManager)
+	attackMgr = new(AttackManager)
+
+	attackMgr.Initialize()
 
 	attackMgr.Run()
 
@@ -132,7 +127,7 @@ func initServer() {
 
 	router.POST("/attacks", CreateAttack)
 
-	router.DELETE("/attacks", StopAttack)
+	router.DELETE("/attacks/:id", StopAttack)
 
-	log.Fatal(http.ListenAndServe(common.Configuration.Server.Port, router))
+	log.Fatal(http.ListenAndServe(Config.Server.Port, router))
 }
