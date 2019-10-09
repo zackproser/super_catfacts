@@ -10,6 +10,8 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/julienschmidt/httprouter"
+
+	"bitbucket.org/ckvist/twilio/twiml"
 )
 
 var attackMgr *AttackManager
@@ -111,6 +113,18 @@ func StopAttack(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	}
 }
 
+func handleInboundSMS(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	sender := r.FormValue("From")
+
+	resp := twiml.NewResponse()
+	resp.Action(twiml.Message{
+		Body: fmt.Sprintf("Thanks for your feedback! We've awarded you additional CatFacts at no extra charge!"),
+		From: Config.Twilio.Number,
+		To:   sender,
+	})
+	resp.Send(w)
+}
+
 func initServer() {
 
 	attackMgr = new(AttackManager)
@@ -128,6 +142,8 @@ func initServer() {
 	router.POST("/attacks", CreateAttack)
 
 	router.DELETE("/attacks/:id", StopAttack)
+
+	router.POST("/sms/receive", handleInboundSMS)
 
 	log.Fatal(http.ListenAndServe(Config.Server.Port, router))
 }

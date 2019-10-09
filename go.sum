@@ -1,3 +1,5 @@
+bitbucket.org/ckvist/twilio v0.0.0-20170512072134-13c593a1721b h1:EgVTZyg+IROzDLG86gbfoLk4k6nwypmTHmjXDgYMzD4=
+bitbucket.org/ckvist/twilio v0.0.0-20170512072134-13c593a1721b/go.mod h1:tZckALWIGoGfdoe/aKzxBL5qViz4qXogqZx1UViXWME=
 cloud.google.com/go v0.26.0/go.mod h1:aQUYkXzVsufM+DwF1aE+0xfcU+56JwCaLick0ClmMTw=
 github.com/BurntSushi/toml v0.3.1 h1:WXkYYl6Yr3qBf1K79EBnL4mak0OimBfB0XUf9Vl28OQ=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
