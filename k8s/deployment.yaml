@@ -16,6 +16,6 @@ spec:
     spec:
       containers:
       - name: catfacts
-        image: gcr.io/super-catfacts/catfacts:v7
+        image: gcr.io/super-catfacts/catfacts:v8
         ports:
           - containerPort: 3000
