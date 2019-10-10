@@ -38,6 +38,12 @@ type TwilioConfiguration struct {
 }
 
 type ServerConfiguration struct {
-	Port   string
-	Admins []string
+	CatfactsAPIKey string
+	Port           string
+	Admins         []string
+}
+
+type HealthCheckResponse struct {
+	Heartbeat      time.Time `json:heartbeat`
+	RunningAttacks int
 }

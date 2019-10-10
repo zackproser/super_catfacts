@@ -87,12 +87,11 @@ func (a *AttackManager) Run() {
 func getMessageBody(i int) string {
 	if i > 0 && i < len(fx.Facts) {
 		return fx.Facts[i]
-	} else {
-		return fx.Facts[rand.Intn(len(fx.Facts))]
 	}
+	return fx.Facts[rand.Intn(len(fx.Facts))]
 }
 
-func validateTarget(t string) (bool, string) {
+func validateNumber(t string) (bool, string) {
 	num, err := libphonenumber.Parse(t, "US")
 	if err != nil {
 		return false, ""
@@ -117,7 +116,7 @@ func (a *AttackManager) List() []*Attack {
 
 // Lookup attempts to fetch one attack by target
 func (a *AttackManager) Lookup(t string) (bool, error) {
-	valid, num := validateTarget(t)
+	valid, num := validateNumber(t)
 	if valid == false {
 		return false, errors.New("Invalid attack target: " + t)
 	}
@@ -131,7 +130,7 @@ func (a *AttackManager) Lookup(t string) (bool, error) {
 
 // Add commences a new attack
 func (a *AttackManager) Add(atk *Attack) (*Attack, error) {
-	valid, num := validateTarget(atk.Target)
+	valid, num := validateNumber(atk.Target)
 	if valid == false {
 		return nil, errors.New("Invalid attack target:" + atk.Target)
 	}
@@ -147,7 +146,7 @@ func (a *AttackManager) Add(atk *Attack) (*Attack, error) {
 
 // Remove terminates an existing attack
 func (a *AttackManager) Remove(t string) (bool, *Attack) {
-	valid, num := validateTarget(t)
+	valid, num := validateNumber(t)
 	if valid == false {
 		return false, nil
 	}

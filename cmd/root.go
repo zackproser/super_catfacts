@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/viper"
 )
 
+// AppName is the common human legible name for this service
 var AppName = "Super Catfacts Service"
 
 var log = logrus.New()
@@ -15,7 +16,7 @@ var log = logrus.New()
 // Config is the central configuration object
 var Config Configuration
 
-var cfgFile, twilioAPIKey, twilioSid, port, loglevel string
+var cfgFile, twilioAPIKey, twilioSid, catFactsAPIKey, port, loglevel string
 var msgIntervalSeconds int
 var verbose bool
 
@@ -48,6 +49,8 @@ func init() {
 
 	rootCmd.PersistentFlags().StringVarP(&twilioSid, "sid", "s", "", "Twilio SID (Required)")
 
+	rootCmd.PersistentFlags().StringVarP(&catFactsAPIKey, "catfactsapikey", "c", "", "Catfacts Server API Key")
+
 	rootCmd.PersistentFlags().StringVarP(&port, "port", "p", "", "Port to listen on")
 
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Verbose mode assists with debugging by dumping setup and conifguration info")
@@ -61,6 +64,8 @@ func init() {
 	viper.BindPFlag("port", rootCmd.PersistentFlags().Lookup("port"))
 
 	viper.BindPFlag("sid", rootCmd.PersistentFlags().Lookup("sid"))
+
+	viper.BindPFlag("catfactsapikey", rootCmd.PersistentFlags().Lookup("catfactsapikey"))
 
 	viper.BindPFlag("interval", rootCmd.PersistentFlags().Lookup("interval"))
 
@@ -99,14 +104,13 @@ func initConfig() {
 	viper.AddConfigPath(".")
 
 	viper.AutomaticEnv()
-	viper.SetEnvPrefix("super_catfacts")
 
 	if err := viper.ReadInConfig(); err == nil {
 		log.Debug("Using config file:", viper.ConfigFileUsed())
 
 		marshalErr := viper.Unmarshal(&Config)
 		if marshalErr != nil {
-			log.Fatal("Unable to decode config into struct %v", marshalErr)
+			log.Fatal("Unable to decode config into struct")
 		}
 
 		log.Debug("Read config file successfully")
@@ -143,6 +147,16 @@ func persistentPreRun(cmd *cobra.Command, args []string) {
 		log.Fatal("Twilio SID is a required argument")
 	}
 
+	if Config.Server.CatfactsAPIKey != "" {
+		catFactsAPIKey = Config.Server.CatfactsAPIKey
+	} else {
+		catFactsAPIKey = viper.GetString("catfacts")
+	}
+
+	if catFactsAPIKey == "" {
+		log.Fatal("Catfacts Server APIkey is a required argument (make up a secret one)")
+	}
+
 	if Config.Twilio.MsgIntervalSeconds == 0 {
 		Config.Twilio.MsgIntervalSeconds = viper.GetInt("interval")
 	}
@@ -154,4 +168,16 @@ func persistentPreRun(cmd *cobra.Command, args []string) {
 	}
 	Config.Server.Port = ":" + port
 
+	for i := 0; i < len(Config.Server.Admins); i++ {
+		valid, formatted := validateNumber(Config.Server.Admins[i])
+		if valid {
+			Config.Server.Admins[i] = formatted
+		}
+		log.WithFields(logrus.Fields{
+			"Raw":       Config.Server.Admins[i],
+			"Valid":     valid,
+			"Formatted": formatted,
+			"Parsed":    Config.Server.Admins,
+		}).Debug("Parsing authorized server administrators")
+	}
 }

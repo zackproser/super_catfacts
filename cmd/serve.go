@@ -7,6 +7,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/kevinburke/twilio-go"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
 	"github.com/julienschmidt/httprouter"
@@ -29,10 +31,23 @@ var serveCommand = &cobra.Command{
 	},
 }
 
+// HealthCheck returns a simple ping-like response
 func HealthCheck(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	fmt.Fprintf(w, AppName+" up and running")
+	hc := &HealthCheckResponse{
+		Heartbeat:      time.Now(),
+		RunningAttacks: attackMgr.getCurrentRunningAttackCount(),
+	}
+	j, err := json.Marshal(hc)
+	if err != nil {
+		log.WithFields(logrus.Fields{
+			"Error": err,
+		}).Debug("Error serializing healthcheck json")
+
+	}
+	w.Write(j)
 }
 
+// GetAttacks returns a JSON representation of all currently running attacks
 func GetAttacks(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 	var attackResponses []*AttackResponse
@@ -52,7 +67,7 @@ func GetAttacks(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	w.Write(j)
 }
 
-func CreateAttack(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+func createAttackAPI(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 	err := r.ParseForm()
 	if err != nil {
@@ -90,6 +105,34 @@ func CreateAttack(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	}
 }
 
+func createAttack(target string) *AttackResponse {
+	attack, err := attackMgr.Add(&Attack{
+		Target:    target,
+		StartTime: time.Now(),
+	})
+
+	if err != nil {
+		log.WithFields(logrus.Fields{
+			"Error": err,
+		}).Debug("Error creating SMS initiated attack")
+	}
+
+	return &AttackResponse{
+		ID:        attack.ID,
+		Target:    attack.Target,
+		StartTime: attack.StartTime,
+	}
+}
+
+func stopAttack(target string) (bool, *Attack) {
+	success, attack := attackMgr.Remove(target)
+	if success {
+		return true, attack
+	} else {
+		return false, nil
+	}
+}
+
 func StopAttack(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 	attackID := ps.ByName("id")
@@ -113,15 +156,104 @@ func StopAttack(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	}
 }
 
+func isAdmin(s string) bool {
+	valid, formatted := validateNumber(s)
+	if valid {
+		for _, admin := range Config.Server.Admins {
+			if formatted == admin {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func isUnderAttack(s string) bool {
+	valid, formatted := validateNumber(s)
+	if valid {
+		for _, atk := range attackMgr.repository {
+			if formatted == atk.Target {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func handleAdminSMSRequest(sender, body string, w http.ResponseWriter) {
+	// Attempt to parse a target number from the body of the message
+	valid, formatted := validateNumber(body)
+
+	if valid {
+
+		// If the number is already being attacked, stop it
+		if isUnderAttack(formatted) {
+			success, attack := stopAttack(formatted)
+			if success {
+				fmt.Fprintf(w, "Successfully terminated attack: %v", attack)
+			}
+		} else {
+			// Otherwise start a new attack
+			atkResponse := createAttack(formatted)
+			if atkResponse != nil {
+				fmt.Fprintf(w, "Successfully intitiated attack: %v", atkResponse)
+			} else {
+				fmt.Fprintf(w, "Error initializing attack on %v", body)
+			}
+		}
+	} else {
+
+		fmt.Fprintf(w, "Invalid attack target: %v - please supply a valid phone number", body)
+	}
+}
+
 func handleInboundSMS(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	invalidErr := twilio.ValidateIncomingRequest(r.Host, Config.Twilio.APIKey, r)
+
+	if invalidErr != nil {
+		//The request is not coming from Twilio - bail out
+		return
+	}
+
 	sender := r.FormValue("From")
+	body := r.FormValue("Body")
+
+	log.WithFields(logrus.Fields{
+		"Sender": sender,
+		"Body":   body,
+	}).Debug("handleInboundSMS received message")
+
+	if isAdmin(sender) {
+		handleAdminSMSRequest(sender, body, w)
+	} else {
+		// Further prank a non-admin user by "upgrading" their account
+		resp := twiml.NewResponse()
+		resp.Action(twiml.Message{
+			Body: fmt.Sprintf("Thanks for your feedback! We've awarded you additional CatFacts at no extra charge!"),
+			From: Config.Twilio.Number,
+			To:   sender,
+		})
+		resp.Send(w)
+	}
+}
+
+func handleInboundCall(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	invalidErr := twilio.ValidateIncomingRequest(r.Host, Config.Twilio.APIKey, r)
+
+	if invalidErr != nil {
+		//The request is not coming from Twilio - bail out
+		return
+	}
+
+	log.Debug("handleInboundCall received call")
 
 	resp := twiml.NewResponse()
-	resp.Action(twiml.Message{
-		Body: fmt.Sprintf("Thanks for your feedback! We've awarded you additional CatFacts at no extra charge!"),
-		From: Config.Twilio.Number,
-		To:   sender,
+	resp.Action(twiml.Say{
+		Voice:    twiml.TwiMan,
+		Language: twiml.TwiEnglishUK,
+		Text:     "Thank you for calling CatFacts! Meow Meow Meow!",
 	})
+
 	resp.Send(w)
 }
 
@@ -135,15 +267,36 @@ func initServer() {
 
 	router := httprouter.New()
 
-	router.GET("/healthcheck", HealthCheck)
+	router.GET("/", HealthCheck)
 
 	router.GET("/attacks", GetAttacks)
 
-	router.POST("/attacks", CreateAttack)
+	router.POST("/attacks", createAttackAPI)
 
 	router.DELETE("/attacks/:id", StopAttack)
 
 	router.POST("/sms/receive", handleInboundSMS)
 
-	log.Fatal(http.ListenAndServe(Config.Server.Port, router))
+	router.POST("/call/receive", handleInboundCall)
+
+	// Gate Catfacts API to requests that supply the correct API key in the HTTP Authorization header
+	log.Fatal(http.ListenAndServe(Config.Server.Port, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Header.Get("Access-Control-Request-Method") != "" {
+			// Set CORS headers
+			header := w.Header()
+			header.Set("Access-Control-Allow-Methods", r.Header.Get("Allow"))
+			header.Set("Access-Control-Allow-Origin", "*")
+
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+
+		authHeader := r.Header.Get("Authorization")
+		if authHeader == "" || authHeader != Config.Server.CatfactsAPIKey {
+			w.WriteHeader(403)
+			return
+		}
+		router.ServeHTTP(w, r)
+	},
+	)))
 }

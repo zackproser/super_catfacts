@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: catfacts-deployment
+  labels:
+    app: catfacts
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: catfacts
+  template:
+    metadata:
+      labels:
+        app: catfacts
+    spec:
+      containers:
+      - name: catfacts
+        image: gcr.io/super-catfacts/catfacts:v7
+        ports:
+          - containerPort: 3000
