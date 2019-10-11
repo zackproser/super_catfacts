@@ -7,13 +7,10 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/kevinburke/twilio-go"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
 	"github.com/julienschmidt/httprouter"
-
-	"bitbucket.org/ckvist/twilio/twiml"
 )
 
 var attackMgr *AttackManager
@@ -35,7 +32,7 @@ var serveCommand = &cobra.Command{
 func HealthCheck(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	hc := &HealthCheckResponse{
 		Heartbeat:      time.Now(),
-		RunningAttacks: attackMgr.getCurrentRunningAttackCount(),
+		RunningAttacks: attackMgr.GetCurrentRunningAttackCount(),
 	}
 	j, err := json.Marshal(hc)
 	if err != nil {
@@ -178,83 +175,6 @@ func isUnderAttack(s string) bool {
 		}
 	}
 	return false
-}
-
-func handleAdminSMSRequest(sender, body string, w http.ResponseWriter) {
-	// Attempt to parse a target number from the body of the message
-	valid, formatted := validateNumber(body)
-
-	if valid {
-
-		// If the number is already being attacked, stop it
-		if isUnderAttack(formatted) {
-			success, attack := stopAttack(formatted)
-			if success {
-				fmt.Fprintf(w, "Successfully terminated attack: %v", attack)
-			}
-		} else {
-			// Otherwise start a new attack
-			atkResponse := createAttack(formatted)
-			if atkResponse != nil {
-				fmt.Fprintf(w, "Successfully intitiated attack: %v", atkResponse)
-			} else {
-				fmt.Fprintf(w, "Error initializing attack on %v", body)
-			}
-		}
-	} else {
-
-		fmt.Fprintf(w, "Invalid attack target: %v - please supply a valid phone number", body)
-	}
-}
-
-func handleInboundSMS(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	invalidErr := twilio.ValidateIncomingRequest(r.Host, Config.Twilio.APIKey, r)
-
-	if invalidErr != nil {
-		//The request is not coming from Twilio - bail out
-		return
-	}
-
-	sender := r.FormValue("From")
-	body := r.FormValue("Body")
-
-	log.WithFields(logrus.Fields{
-		"Sender": sender,
-		"Body":   body,
-	}).Debug("handleInboundSMS received message")
-
-	if isAdmin(sender) {
-		handleAdminSMSRequest(sender, body, w)
-	} else {
-		// Further prank a non-admin user by "upgrading" their account
-		resp := twiml.NewResponse()
-		resp.Action(twiml.Message{
-			Body: fmt.Sprintf("Thanks for your feedback! We've awarded you additional CatFacts at no extra charge!"),
-			From: Config.Twilio.Number,
-			To:   sender,
-		})
-		resp.Send(w)
-	}
-}
-
-func handleInboundCall(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	invalidErr := twilio.ValidateIncomingRequest(r.Host, Config.Twilio.APIKey, r)
-
-	if invalidErr != nil {
-		//The request is not coming from Twilio - bail out
-		return
-	}
-
-	log.Debug("handleInboundCall received call")
-
-	resp := twiml.NewResponse()
-	resp.Action(twiml.Say{
-		Voice:    twiml.TwiMan,
-		Language: twiml.TwiEnglishUK,
-		Text:     "Thank you for calling CatFacts! Meow Meow Meow!",
-	})
-
-	resp.Send(w)
 }
 
 func initServer() {

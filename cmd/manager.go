@@ -1,43 +1,30 @@
 package cmd
 
 import (
-	"encoding/json"
 	"errors"
-	"io/ioutil"
 	"math/rand"
-	"os"
 	"time"
 
 	"github.com/kevinburke/twilio-go"
 	"github.com/sirupsen/logrus"
-	"github.com/ttacon/libphonenumber"
 )
 
 var client *twilio.Client
 
-var fx Catfacts
+var catfacts, responses []string
 
-// Initialize loads Catfacts
+// Initialize loads C:atfacts
 func (a *AttackManager) Initialize() {
 
 	rand.Seed(time.Now().Unix())
 
 	client = twilio.NewClient(Config.Twilio.SID, Config.Twilio.APIKey, nil)
 
-	jsonFile, err := os.Open("data/catfacts.json")
+	// Load CatFacts for use in attacks
+	loadJSONToSlice("data/catfacts.json", catfacts)
 
-	defer jsonFile.Close()
-
-	if err != nil {
-		log.WithFields(logrus.Fields{
-			"Error": err,
-		}).Debug("Unable to parse Catfacts JSON file")
-	}
-
-	bytes, _ := ioutil.ReadAll(jsonFile)
-
-	json.Unmarshal(bytes, &fx.Facts)
-
+	// Load account responses for answering inbound SMS
+	loadJSONToSlice("data/account-responses.json", responses)
 }
 
 // Run commences the attack processing subroutine
@@ -56,7 +43,7 @@ func (a *AttackManager) Run() {
 				msg, err := client.Messages.SendMessage(
 					Config.Twilio.Number,
 					atk.Target,
-					getMessageBody(atk.MsgCount),
+					getRandomFromSlice(atk.MsgCount, catfacts),
 					nil,
 				)
 
@@ -82,22 +69,6 @@ func (a *AttackManager) Run() {
 			}
 		}
 	}()
-}
-
-func getMessageBody(i int) string {
-	if i > 0 && i < len(fx.Facts) {
-		return fx.Facts[i]
-	}
-	return fx.Facts[rand.Intn(len(fx.Facts))]
-}
-
-func validateNumber(t string) (bool, string) {
-	num, err := libphonenumber.Parse(t, "US")
-	if err != nil {
-		return false, ""
-	}
-	formattedNum := libphonenumber.Format(num, libphonenumber.NATIONAL)
-	return true, formattedNum
 }
 
 func (a *AttackManager) attackRunning(t string) (bool, *Attack) {
@@ -172,4 +143,9 @@ func (a *AttackManager) RemoveByID(id int) (bool, *Attack) {
 		}
 	}
 	return false, nil
+}
+
+// GetCurrentRunningAttackCount returns the number of attacks in progress
+func (a *AttackManager) GetCurrentRunningAttackCount() int {
+	return len(a.repository)
 }
