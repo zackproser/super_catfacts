@@ -1,0 +1,22 @@
+language: go
+go_import_path: github.com/kevinburke/go-types
+
+os: linux
+dist: trusty
+
+sudo: false
+
+go:
+  - 1.9.x
+  - 1.10.x
+  - master
+
+before_script:
+  - go get ./...
+
+script:
+  - make race-test
+
+cache:
+  directories:
+    - $GOPATH/pkg

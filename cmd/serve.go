@@ -199,6 +199,8 @@ func initServer() {
 
 	router.POST("/call/receive", handleInboundCall)
 
+	router.ServeFiles("/static/*filepath", http.Dir("static"))
+
 	// Gate Catfacts API to requests that supply the correct API key in the HTTP Authorization header
 	log.Fatal(http.ListenAndServe(Config.Server.Port, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Header.Get("Access-Control-Request-Method") != "" {
@@ -212,7 +214,8 @@ func initServer() {
 		}
 
 		authHeader := r.Header.Get("Authorization")
-		if authHeader == "" || authHeader != Config.Server.CatfactsAPIKey {
+		authQuery := r.URL.Query().Get("apikey")
+		if authHeader != Config.Server.CatfactsAPIKey && authQuery != Config.Server.CatfactsAPIKey {
 			w.WriteHeader(403)
 			return
 		}

@@ -82,7 +82,7 @@ func handleInboundCall(w http.ResponseWriter, r *http.Request, ps httprouter.Par
 	resp.Action(twiml.Say{
 		Voice:    twiml.TwiMan,
 		Language: twiml.TwiEnglishUK,
-		Text:     "Thank you for calling CatFacts! Meow Meow Meow!",
+		Text:     "Thank you for calling CatFacts!",
 	})
 
 	resp.Send(w)
