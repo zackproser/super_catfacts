@@ -56,7 +56,7 @@ Here are the configuration variables at a glance
 | server.port  | int | The port the CatFacts service will listen on |  :heavy_check_mark: |
 |  server.admins | array of strings  |  These are the phone numbers of your service's administrators. They will have total control over the service | :heavy_check_mark:  | 
 |  server.catfactsuser | string  | Basic auth username, used by Twilio to access your service | :heavy_check_mark:  | 
-| server.catfactspassword | string  Basic auth password, used by Twilio to access your service | :heavy_check_mark: |
+| server.catfactspassword | string | Basic auth password, used by Twilio to access your service | :heavy_check_mark: |
 | twilio.number | string | The Twilio number you are mapping to your CatFacts service | :heavy_check_mark: | 
 | twilio.apikey | string | Your API Key (also called an auth token) from your Twilio dashboard | :heavy_check_mark: |
 | twilio.sid | string  | Your SID from your Twilio dashboard | :heavy_check_mark: | 
