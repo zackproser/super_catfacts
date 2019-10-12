@@ -29,6 +29,24 @@ docker push gcr.io/super-catfacts/catfacts:v1
 # Update k8s/deployment.yaml so that the image field points to the image tag you just pushed
 kubectl apply -f k8s/deployment.yaml
 ```
+# Example config 
+
+```
+server:
+  port: 3000
+  admins:
+    - "5143277224"
+    - "9613262719"
+  catfactsuser: furtastic
+  catfactspassword: ZywsrdsgSY3241254sSweop
+  fqdn: example.com
+twilio:
+   number: "+13402937949"
+   apikey: 812029d43c5957w38e09459c859bf5
+   sid: AC4djwiyf5dc871236ffce9001c8addae
+   messageIntervalSeconds: 30
+```
+
 # Controlling your CatFacts deployment 
 Management of the service (starting and stopping attacks, checking system status) is done via SMS messages to your configured Twilio phone number. You must be an admin (as configured via the Server.Admins node in config.yml) to control the service. 
 
