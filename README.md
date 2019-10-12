@@ -45,7 +45,17 @@ twilio:
    apikey: 812029d43c5957w38e09459c859bf5
    sid: AC4djwiyf5dc871236ffce9001c8addae
    messageIntervalSeconds: 30
-```
+``` 
+
+# CatFacts configuration
+
+Here are the configuration variables at a glance 
+
+| Name  | Type  | Description  | Required  |   |
+|---|---|---|---|---|
+| server.port  | int | The port the CatFacts service will listen on |  heavy_check_mark |   |
+|   |   |   |   |   |
+|   |   |   |   |   |
 
 # Controlling your CatFacts deployment 
 Management of the service (starting and stopping attacks, checking system status) is done via SMS messages to your configured Twilio phone number. You must be an admin (as configured via the Server.Admins node in config.yml) to control the service. 
