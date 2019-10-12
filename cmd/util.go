@@ -36,11 +36,21 @@ func loadJSONToSlice(filePath string, s []string) []string {
 	return s
 }
 
-func getRandomFromSlice(i int, s []string) string {
-	if i > 0 && i < len(s) {
-		return s[i]
+func getNextCatfact(i int) string {
+	if i > 0 && i < len(catfacts) {
+		return catfacts[i]
 	}
-	return s[rand.Intn(len(s))]
+	return getRandomCatfact()
+}
+
+func getRandomCatfact() string {
+	log.Debug("WIKKA %v", catfacts)
+	log.Debug("WAKKA %v", len(catfacts))
+	return catfacts[rand.Intn(len(catfacts))]
+}
+
+func getRandomAccountResponse() string {
+	return responses[rand.Intn(len(responses))]
 }
 
 func validateNumber(t string) (bool, string) {
@@ -50,4 +60,12 @@ func validateNumber(t string) (bool, string) {
 	}
 	formattedNum := libphonenumber.Format(num, libphonenumber.NATIONAL)
 	return true, formattedNum
+}
+
+func renderBasicAuth() string {
+	return Config.Server.CatfactsUser + ":" + Config.Server.CatfactsPassword + "@"
+}
+
+func renderServerRoot() string {
+	return "https://" + renderBasicAuth() + Config.Server.FQDN
 }

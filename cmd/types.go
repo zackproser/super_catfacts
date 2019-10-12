@@ -38,9 +38,11 @@ type TwilioConfiguration struct {
 }
 
 type ServerConfiguration struct {
-	CatfactsAPIKey string
-	Port           string
-	Admins         []string
+	FQDN             string
+	CatfactsUser     string
+	CatfactsPassword string
+	Port             string
+	Admins           []string
 }
 
 type HealthCheckResponse struct {

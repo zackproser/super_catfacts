@@ -6,7 +6,6 @@ import (
 
 	"bitbucket.org/ckvist/twilio/twiml"
 	"github.com/julienschmidt/httprouter"
-	"github.com/kevinburke/twilio-go"
 	"github.com/sirupsen/logrus"
 )
 
@@ -38,12 +37,6 @@ func handleAdminSMSRequest(sender, body string, w http.ResponseWriter) {
 }
 
 func handleInboundSMS(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	invalidErr := twilio.ValidateIncomingRequest(r.Host, Config.Twilio.APIKey, r)
-
-	if invalidErr != nil {
-		//The request is not coming from Twilio - bail out
-		return
-	}
 
 	sender := r.FormValue("From")
 	body := r.FormValue("Body")
@@ -56,7 +49,7 @@ func handleInboundSMS(w http.ResponseWriter, r *http.Request, ps httprouter.Para
 	if isAdmin(sender) {
 		handleAdminSMSRequest(sender, body, w)
 	} else {
-		answer := getRandomFromSlice(10000000, responses)
+		answer := getRandomAccountResponse()
 		// Further prank a non-admin user by "upgrading" their account
 		resp := twiml.NewResponse()
 		resp.Action(twiml.Message{
@@ -69,12 +62,6 @@ func handleInboundSMS(w http.ResponseWriter, r *http.Request, ps httprouter.Para
 }
 
 func handleInboundCall(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	invalidErr := twilio.ValidateIncomingRequest(r.Host, Config.Twilio.APIKey, r)
-
-	if invalidErr != nil {
-		//The request is not coming from Twilio - bail out
-		return
-	}
 
 	log.Debug("handleInboundCall received call")
 
@@ -84,6 +71,112 @@ func handleInboundCall(w http.ResponseWriter, r *http.Request, ps httprouter.Par
 		Language: twiml.TwiEnglishUK,
 		Text:     "Thank you for calling CatFacts!",
 	})
+	resp.Action(twiml.Play{
+		Url: renderServerRoot() + "/static/angryMeow.wav",
+	})
+	resp.Action(twiml.Say{
+		Voice:    twiml.TwiMan,
+		Language: twiml.TwiEnglishUK,
+		Text:     "Cat Facts is the number one provider of fun facts about cats! All of our representatives are currently assisting other cat lovers. Please remain on the feline! In the meantime, please listen carefully as our menu options have recently changed.",
+	})
+
+	var gatherChildren []interface{}
+	gatherChildren = append(
+		gatherChildren, resp.Action(twiml.Say{
+			Voice:    twiml.TwiMan,
+			Language: twiml.TwiEnglishUK,
+			Text:     "If you would like to receive a fun cat fact right now, press 1. If you would like to learn about how you were subscribed to CAT FACTS, please press 2",
+		}),
+	)
+	gatherChildren = append(
+		gatherChildren, resp.Action(twiml.Say{
+			Voice:    twiml.TwiMan,
+			Language: twiml.TwiEnglishUK,
+			Text:     "If for some fur-brained reason you would like to unsubscribe from fantastic hourly cat facts, please press 3 3 3 3 4 6 7 8 9 3 1 2 6 in order right now",
+		}),
+	)
+
+	resp.Gather(twiml.Gather{
+		Action:      renderServerRoot() + "/phonetree",
+		Method:      "POST",
+		FinishOnKey: "*",
+		Nested:      gatherChildren,
+	})
 
 	resp.Send(w)
+}
+
+func renderPhoneTree(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+
+	pressed := r.FormValue("Digits")
+	callingUser := r.FormValue("From")
+
+	valid, formatted := validateNumber(callingUser)
+
+	if !valid {
+		log.WithFields(logrus.Fields{
+			"Pressed":      pressed,
+			"Calling User": callingUser,
+		}).Debug("Invalid user phone number received by renderPhoneTree")
+	}
+
+	log.WithFields(logrus.Fields{
+		"Pressed":      pressed,
+		"Calling User": callingUser,
+	}).Debug("renderPhoneTree received call")
+
+	resp := twiml.NewResponse()
+
+	switch pressed {
+	case "1":
+
+		//Send the attack message
+		msg, err := client.Messages.SendMessage(
+			Config.Twilio.Number,
+			formatted,
+			getRandomCatfact(),
+			nil,
+		)
+
+		if err != nil {
+			log.WithFields(logrus.Fields{
+				"Error": err,
+			}).Debug("Error sending Twilio SMS")
+		}
+
+		if msg != nil {
+			log.WithFields(logrus.Fields{
+				"Status": msg.Status,
+			}).Debug("Twilio SMS sent!")
+		}
+
+		resp.Action(twiml.Say{
+			Voice:    twiml.TwiMan,
+			Language: twiml.TwiEnglishUK,
+			Text:     "One brand spanking new Cat Fact coming right up. We're working hard to deliver your fact. Thanks for using CatFacts and please call again!",
+		})
+		resp.Action(twiml.Play{
+			Url: renderServerRoot() + "/static/shortMeow.wav",
+		})
+
+		resp.Send(w)
+
+	case "2":
+		resp.Action(twiml.Say{
+			Voice:    twiml.TwiMan,
+			Language: twiml.TwiEnglishUK,
+			Text:     "Please wait one moment while I pull up your account",
+		})
+		resp.Action(twiml.Play{
+			Url: renderServerRoot() + "/static/shortMeow2.wav",
+		})
+		resp.Action(twiml.Say{
+			Voice:    twiml.TwiMan,
+			Language: twiml.TwiEnglishUK,
+			Text:     "Thanks for your patience. You were subscribed to CatFacts because you love fun facts about cats. As a thank you for calling in today, we will increase the frequency of your catfacts account at no extra charge. Have a furry and fantastic day!",
+		})
+
+		resp.Send(w)
+	}
+
 }

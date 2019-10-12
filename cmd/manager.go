@@ -11,8 +11,6 @@ import (
 
 var client *twilio.Client
 
-var catfacts, responses []string
-
 // Initialize loads C:atfacts
 func (a *AttackManager) Initialize() {
 
@@ -21,10 +19,10 @@ func (a *AttackManager) Initialize() {
 	client = twilio.NewClient(Config.Twilio.SID, Config.Twilio.APIKey, nil)
 
 	// Load CatFacts for use in attacks
-	loadJSONToSlice("data/catfacts.json", catfacts)
+	catfacts = loadJSONToSlice("data/catfacts.json", catfacts)
 
 	// Load account responses for answering inbound SMS
-	loadJSONToSlice("data/account-responses.json", responses)
+	responses = loadJSONToSlice("data/account-responses.json", responses)
 }
 
 // Run commences the attack processing subroutine
@@ -43,7 +41,7 @@ func (a *AttackManager) Run() {
 				msg, err := client.Messages.SendMessage(
 					Config.Twilio.Number,
 					atk.Target,
-					getRandomFromSlice(atk.MsgCount, catfacts),
+					getNextCatfact(atk.MsgCount),
 					nil,
 				)
 

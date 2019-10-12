@@ -16,6 +16,8 @@ RUN apt-get update \
 
 COPY super_catfacts /super_catfacts
 
+COPY static static
+
 COPY data/catfacts.json data/catfacts.json
 
 COPY config.yml config.yml

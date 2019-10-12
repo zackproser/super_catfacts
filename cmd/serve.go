@@ -177,6 +177,21 @@ func isUnderAttack(s string) bool {
 	return false
 }
 
+func basicAuth(h httprouter.Handle) httprouter.Handle {
+	return func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+		// Get the Basic Authentication credentials
+		user, password, hasAuth := r.BasicAuth()
+
+		if hasAuth && user == Config.Server.CatfactsUser && password == Config.Server.CatfactsPassword {
+			h(w, r, ps)
+		} else {
+			// Request Basic Authentication
+			w.Header().Set("WWW-Authenticate", "Basic realm=Restricted")
+			http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+		}
+	}
+}
+
 func initServer() {
 
 	attackMgr = new(AttackManager)
@@ -187,39 +202,22 @@ func initServer() {
 
 	router := httprouter.New()
 
-	router.GET("/", HealthCheck)
+	router.GET("/", basicAuth(HealthCheck))
 
-	router.GET("/attacks", GetAttacks)
+	router.GET("/attacks", basicAuth(GetAttacks))
 
-	router.POST("/attacks", createAttackAPI)
+	router.POST("/attacks", basicAuth(createAttackAPI))
 
-	router.DELETE("/attacks/:id", StopAttack)
+	router.DELETE("/attacks/:id", basicAuth(StopAttack))
 
-	router.POST("/sms/receive", handleInboundSMS)
+	router.POST("/sms/receive", basicAuth(handleInboundSMS))
 
-	router.POST("/call/receive", handleInboundCall)
+	router.GET("/call/receive", basicAuth(handleInboundCall))
+
+	router.POST("/phonetree", basicAuth(renderPhoneTree))
 
 	router.ServeFiles("/static/*filepath", http.Dir("static"))
 
 	// Gate Catfacts API to requests that supply the correct API key in the HTTP Authorization header
-	log.Fatal(http.ListenAndServe(Config.Server.Port, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Header.Get("Access-Control-Request-Method") != "" {
-			// Set CORS headers
-			header := w.Header()
-			header.Set("Access-Control-Allow-Methods", r.Header.Get("Allow"))
-			header.Set("Access-Control-Allow-Origin", "*")
-
-			w.WriteHeader(http.StatusNoContent)
-			return
-		}
-
-		authHeader := r.Header.Get("Authorization")
-		authQuery := r.URL.Query().Get("apikey")
-		if authHeader != Config.Server.CatfactsAPIKey && authQuery != Config.Server.CatfactsAPIKey {
-			w.WriteHeader(403)
-			return
-		}
-		router.ServeHTTP(w, r)
-	},
-	)))
+	log.Fatal(http.ListenAndServe(Config.Server.Port, router))
 }

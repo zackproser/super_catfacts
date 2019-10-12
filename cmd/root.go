@@ -16,8 +16,9 @@ var log = logrus.New()
 // Config is the central configuration object
 var Config Configuration
 
-var cfgFile, twilioAPIKey, twilioSid, catFactsAPIKey, port, loglevel string
-var msgIntervalSeconds int
+var catfacts, responses []string
+
+var loglevel string
 var verbose bool
 
 var rootCmd = &cobra.Command{
@@ -37,42 +38,9 @@ func Execute() {
 
 func init() {
 	cobra.OnInitialize(initConfig)
-
-	// Set config defaults
-	viper.SetDefault("port", "8080")
-
-	viper.SetDefault("loglevel", "debug")
-
-	viper.SetDefault("interval", 30)
-
-	rootCmd.PersistentFlags().StringVarP(&twilioAPIKey, "apikey", "k", "", "Twilio API Key (Required)")
-
-	rootCmd.PersistentFlags().StringVarP(&twilioSid, "sid", "s", "", "Twilio SID (Required)")
-
-	rootCmd.PersistentFlags().StringVarP(&catFactsAPIKey, "catfactsapikey", "c", "", "Catfacts Server API Key")
-
-	rootCmd.PersistentFlags().StringVarP(&port, "port", "p", "", "Port to listen on")
-
-	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Verbose mode assists with debugging by dumping setup and conifguration info")
-
-	rootCmd.PersistentFlags().IntVarP(&msgIntervalSeconds, "interval", "i", 30, "Number of seconds to wait between attack messages")
-
-	rootCmd.PersistentFlags().StringVarP(&loglevel, "loglevel", "l", "debug", "Log Level")
-
-	viper.BindPFlag("apikey", rootCmd.PersistentFlags().Lookup("apikey"))
-
-	viper.BindPFlag("port", rootCmd.PersistentFlags().Lookup("port"))
-
-	viper.BindPFlag("sid", rootCmd.PersistentFlags().Lookup("sid"))
-
-	viper.BindPFlag("catfactsapikey", rootCmd.PersistentFlags().Lookup("catfactsapikey"))
-
-	viper.BindPFlag("interval", rootCmd.PersistentFlags().Lookup("interval"))
-
 }
 
 func initConfig() {
-
 	// TODO remove after dev
 	var cfgLogLevel = logrus.DebugLevel
 
@@ -127,46 +95,31 @@ func initConfig() {
 // Perform validation and initialization on required arguments
 func persistentPreRun(cmd *cobra.Command, args []string) {
 
-	if Config.Twilio.APIKey != "" {
-		twilioAPIKey = Config.Twilio.APIKey
-	} else {
-		twilioAPIKey = viper.GetString("apikey")
-	}
-
-	if twilioAPIKey == "" {
+	if Config.Twilio.APIKey == "" {
 		log.Fatal("Twilio API Key is a required argument")
 	}
 
-	if Config.Twilio.SID != "" {
-		twilioSid = Config.Twilio.SID
-	} else {
-		twilioSid = viper.GetString("sid")
-	}
-
-	if twilioSid == "" {
+	if Config.Twilio.SID == "" {
 		log.Fatal("Twilio SID is a required argument")
 	}
 
-	if Config.Server.CatfactsAPIKey != "" {
-		catFactsAPIKey = Config.Server.CatfactsAPIKey
-	} else {
-		catFactsAPIKey = viper.GetString("catfacts")
+	if Config.Server.FQDN == "" {
+		log.Fatal("The fully qualified domain name (FQDN) of your catfacts server is a required argument")
 	}
 
-	if catFactsAPIKey == "" {
-		log.Fatal("Catfacts Server APIkey is a required argument (make up a secret one)")
+	if Config.Twilio.Number == "" {
+		log.Fatal("A valid Twilio FROM number is a required argument")
 	}
 
 	if Config.Twilio.MsgIntervalSeconds == 0 {
-		Config.Twilio.MsgIntervalSeconds = viper.GetInt("interval")
+		Config.Twilio.MsgIntervalSeconds = 30
 	}
 
-	if Config.Server.Port != "" {
-		port = Config.Server.Port
+	if Config.Server.Port == "" {
+		Config.Server.Port = ":8080"
 	} else {
-		port = viper.GetString("port")
+		Config.Server.Port = ":" + Config.Server.Port
 	}
-	Config.Server.Port = ":" + port
 
 	for i := 0; i < len(Config.Server.Admins); i++ {
 		valid, formatted := validateNumber(Config.Server.Admins[i])
