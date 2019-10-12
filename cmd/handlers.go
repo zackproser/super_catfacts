@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"bitbucket.org/ckvist/twilio/twiml"
 	"github.com/julienschmidt/httprouter"
@@ -30,6 +31,9 @@ func handleAdminSMSRequest(sender, body string, w http.ResponseWriter) {
 				fmt.Fprintf(w, "Error initializing attack on %v", body)
 			}
 		}
+	} else if strings.Contains(strings.ToLower(body), "status") {
+		status := getServiceStatus()
+		fmt.Fprintf(w, AppName+" Status - Count of currently running attacks: %v, on current targets: %v", status.AttackCount, status.Targets)
 	} else {
 
 		fmt.Fprintf(w, "Invalid attack target: %v - please supply a valid phone number", body)
@@ -174,6 +178,29 @@ func renderPhoneTree(w http.ResponseWriter, r *http.Request, ps httprouter.Param
 			Voice:    twiml.TwiMan,
 			Language: twiml.TwiEnglishUK,
 			Text:     "Thanks for your patience. You were subscribed to CatFacts because you love fun facts about cats. As a thank you for calling in today, we will increase the frequency of your catfacts account at no extra charge. Have a furry and fantastic day!",
+		})
+
+		resp.Send(w)
+
+	case "3":
+		resp.Action(twiml.Say{
+			Voice:    twiml.TwiMan,
+			Language: twiml.TwiEnglishUK,
+			Text:     "We understand you would like to cancel your CatFacts account. Unfortunately, we are currently experiencing technical difficulties and cannot process your request at this time. To apologize for the inconvenience, we have upgraded you to a Super CatFacts Account for no extra charge",
+		})
+		resp.Action(twiml.Play{
+			Url: renderServerRoot() + "/static/shortMeow.wav",
+		})
+
+		resp.Send(w)
+	default:
+		resp.Action(twiml.Say{
+			Voice:    twiml.TwiMan,
+			Language: twiml.TwiEnglishUK,
+			Text:     "Sorry, we were unable to process your request at this time. Don't worry, we will send you complimentary CatFacts as an apology for the inconvenience",
+		})
+		resp.Action(twiml.Play{
+			Url: renderServerRoot() + "/static/angryMeow.wav",
 		})
 
 		resp.Send(w)

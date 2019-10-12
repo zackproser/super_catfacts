@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"strings"
-
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -17,9 +15,6 @@ var log = logrus.New()
 var Config Configuration
 
 var catfacts, responses []string
-
-var loglevel string
-var verbose bool
 
 var rootCmd = &cobra.Command{
 	Use:              "super-catfacts",
@@ -41,31 +36,8 @@ func init() {
 }
 
 func initConfig() {
-	// TODO remove after dev
-	var cfgLogLevel = logrus.DebugLevel
 
-	if verbose {
-		cfgLogLevel = logrus.DebugLevel
-	}
-
-	switch strings.ToLower(viper.GetString("loglevel")) {
-	case "trace":
-		cfgLogLevel = logrus.TraceLevel
-	case "debug":
-		cfgLogLevel = logrus.DebugLevel
-	case "info":
-		break
-	case "warn":
-		cfgLogLevel = logrus.WarnLevel
-	case "error":
-		cfgLogLevel = logrus.ErrorLevel
-	case "fatal":
-		cfgLogLevel = logrus.FatalLevel
-	case "panic":
-		cfgLogLevel = logrus.PanicLevel
-	}
-
-	log.SetLevel(cfgLogLevel)
+	log.SetLevel(logrus.DebugLevel)
 
 	// Look for a config file in the working directory
 	viper.SetConfigName("config")
@@ -85,10 +57,6 @@ func initConfig() {
 		log.Debug("Admins are %v", Config.Server.Admins)
 	} else {
 		log.Debug("Error reading config file: %v", err)
-	}
-
-	if verbose {
-		log.Debug("Config is :%v", Config)
 	}
 }
 

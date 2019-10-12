@@ -37,15 +37,16 @@ func loadJSONToSlice(filePath string, s []string) []string {
 }
 
 func getNextCatfact(i int) string {
-	if i > 0 && i < len(catfacts) {
+	if len(catfacts) == 0 {
+		panic("Error loading CatFacts")
+	}
+	if i <= len(catfacts) {
 		return catfacts[i]
 	}
 	return getRandomCatfact()
 }
 
 func getRandomCatfact() string {
-	log.Debug("WIKKA %v", catfacts)
-	log.Debug("WAKKA %v", len(catfacts))
 	return catfacts[rand.Intn(len(catfacts))]
 }
 
@@ -68,4 +69,8 @@ func renderBasicAuth() string {
 
 func renderServerRoot() string {
 	return "https://" + renderBasicAuth() + Config.Server.FQDN
+}
+
+func getServiceStatus() *StatusResponse {
+	return attackMgr.getStatus()
 }

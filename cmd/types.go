@@ -49,3 +49,8 @@ type HealthCheckResponse struct {
 	Heartbeat      time.Time `json:heartbeat`
 	RunningAttacks int
 }
+
+type StatusResponse struct {
+	AttackCount int
+	Targets     []string
+}

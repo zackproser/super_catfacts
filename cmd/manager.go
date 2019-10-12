@@ -69,6 +69,20 @@ func (a *AttackManager) Run() {
 	}()
 }
 
+func (a *AttackManager) getStatus() *StatusResponse {
+
+	var targets []string
+
+	for _, atk := range a.repository {
+		targets = append(targets, atk.Target)
+	}
+
+	return &StatusResponse{
+		AttackCount: len(a.repository),
+		Targets:     targets,
+	}
+}
+
 func (a *AttackManager) attackRunning(t string) (bool, *Attack) {
 	for _, atk := range a.repository {
 		if atk.Target == t {
