@@ -53,7 +53,7 @@ Here are the configuration variables at a glance
 
 | Name  | Type  | Description  | Required  |   |
 |---|---|---|---|---|
-| server.port  | int | The port the CatFacts service will listen on |  heavy_check_mark |   |
+| server.port  | int | The port the CatFacts service will listen on |  :heavy_check_mark |   |
 |   |   |   |   |   |
 |   |   |   |   |   |
 
