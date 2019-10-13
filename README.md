@@ -1,10 +1,10 @@
 # Super CatFacts Service
-A ridiculously over-engineered CatFacts prank service written in Golang and deployed via Kubernetes
+A ridiculously over-engineered CatFacts prank service written in Golang and deployed via Kubernetes and Google Cloud
 
 # Pre-requisites
 * A funded Twilio account
 * A valid Twilio phone number
-* A working Kubernetes cluster
+* A working Google Cloud Kubernetes cluster
 * A working Golang installation
 * A valid domain name for mapping to the service
 
