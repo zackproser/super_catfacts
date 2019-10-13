@@ -40,7 +40,7 @@ func getNextCatfact(i int) string {
 	if len(catfacts) == 0 {
 		panic("Error loading CatFacts")
 	}
-	if i <= len(catfacts) {
+	if i < len(catfacts) {
 		return catfacts[i]
 	}
 	return getRandomCatfact()
