@@ -11,7 +11,7 @@ import (
 
 var client *twilio.Client
 
-// Initialize loads C:atfacts
+// Initialize loads Catfacts
 func (a *AttackManager) Initialize() {
 
 	rand.Seed(time.Now().Unix())
