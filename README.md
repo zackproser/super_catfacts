@@ -107,7 +107,7 @@ You will also need a domain name to map to your Kubernetes service. Once you hav
 
 This allows Twilio to reach your service correctly and retrieve the TwiMl it renders to control the phone tree experience, etc.
 
-In order to ensure your service renders the correct URLs within TwiMl, your config.yml's ```server.fqdn``` field should be set to ```catfacts.com```, in this example.
+In order to ensure your service renders the correct URLs within TwiMl, your config.yml's ```server.fqdn``` field should be set to ```mysupercatfacts.com```, in this example.
 
 # Security and authentication
 
