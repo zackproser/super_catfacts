@@ -100,7 +100,7 @@ The service also exposes an API for scripting against or in case you need more f
 | Method | Route | Description |
 |---|---|---|
 | GET | / | Returns a basic healthcheck confirming the service is up |
-| GET | /attacks/ | Returns currently running attacks |
+| GET | /attacks | Returns currently running attacks |
 | POST | /attacks | Creates a new attack. A form field named **target** containing a valid US phone number is **required** |
 | DELETE | /attacks/:id | Stops the attack referenced by the **id** parameter. Call GET /attacks to see attacks and their Ids |
 
