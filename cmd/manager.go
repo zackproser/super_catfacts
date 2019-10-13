@@ -22,7 +22,7 @@ func (a *AttackManager) Initialize() {
 	catfacts = loadJSONToSlice("data/catfacts.json", catfacts)
 
 	// Load account responses for answering inbound SMS
-	responses = loadJSONToSlice("data/account-responses.json", responses)
+	responses = loadJSONToSlice("data/responses.json", responses)
 }
 
 // Run commences the attack processing subroutine

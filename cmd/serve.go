@@ -59,7 +59,9 @@ func GetAttacks(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	}
 	j, err := json.Marshal(attackResponses)
 	if err != nil {
-		log.Debug("Error serializing attack info: %v", err)
+		log.WithFields(logrus.Fields{
+			"Error": err,
+		}).Debug("Error serializing attack info")
 	}
 	w.Write(j)
 }
@@ -93,7 +95,9 @@ func createAttackAPI(w http.ResponseWriter, r *http.Request, _ httprouter.Params
 		j, marshalErr := json.Marshal(atkResponse)
 
 		if marshalErr != nil {
-			log.Debug("Error serializing attack info to JSON: %v", marshalErr)
+			log.WithFields(logrus.Fields{
+				"Error": err,
+			}).Debug("Error serializing attack info to JSON")
 		}
 
 		w.Write(j)
@@ -141,7 +145,9 @@ func StopAttack(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	attackIDInt, err := strconv.Atoi(attackID)
 
 	if err != nil {
-		log.Debug("Error converting attack ID string to int: %v", err)
+		log.WithFields(logrus.Fields{
+			"Error": err,
+		}).Debug("Error converting attack ID string to int")
 	}
 
 	success, attack := attackMgr.RemoveByID(attackIDInt)

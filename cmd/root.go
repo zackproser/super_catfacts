@@ -54,9 +54,13 @@ func initConfig() {
 		}
 
 		log.Debug("Read config file successfully")
-		log.Debug("Admins are %v", Config.Server.Admins)
+		log.WithFields(logrus.Fields{
+			"Admins": Config.Server.Admins,
+		}).Debug("Service Admins loaded")
 	} else {
-		log.Debug("Error reading config file: %v", err)
+		log.WithFields(logrus.Fields{
+			"Error": err,
+		}).Debug("Error reading config file")
 	}
 }
 

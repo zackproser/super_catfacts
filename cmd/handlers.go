@@ -53,7 +53,11 @@ func handleInboundSMS(w http.ResponseWriter, r *http.Request, ps httprouter.Para
 	if isAdmin(sender) {
 		handleAdminSMSRequest(sender, body, w)
 	} else {
+
 		answer := getRandomAccountResponse()
+
+		log.Debug("Sending random account response SMS")
+
 		// Further prank a non-admin user by "upgrading" their account
 		resp := twiml.NewResponse()
 		resp.Action(twiml.Message{

@@ -12,7 +12,7 @@ import (
 
 func loadJSONToSlice(filePath string, s []string) []string {
 
-	jsonFile, err := os.Open("data/catfacts.json")
+	jsonFile, err := os.Open(filePath)
 
 	defer jsonFile.Close()
 
