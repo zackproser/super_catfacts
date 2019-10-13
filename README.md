@@ -135,6 +135,8 @@ Management of the service (starting and stopping attacks, checking system status
 # Start an attack
 Text a US phone number to your Twilio CatFacts service number. The service will respond confirming the target is under attack
 
+![Commanding your catfacts service](/static/img/initiate.png)
+
 # Get attack status
 Text "Status" to your Twilio CatFacts service number. The service will respond with a read out of all current attacks, their message counts, and start times.
 
