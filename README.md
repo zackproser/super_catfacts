@@ -80,17 +80,32 @@ Here are the configuration variables at a glance
 | twilio.sid | string  | Your SID from your Twilio dashboard | :heavy_check_mark: |
 | twilio.messageIntervalSeconds | int | The number of seconds to pause between sending text messages when attacking a target | :x: |
 
+# API
+The service also exposes an API for scripting against or in case you need more flexibility in integrating it with existing code:
+
+| Method | Route | Description |
+|---|---|---|
+| GET | / | Returns a basic healthcheck confirming the service is up |
+| GET | /attacks/ | Returns currently running attacks |
+| POST | /attacks | Creates a new attack. A form field named **target** containing a valid US phone number is **required** |
+| DELETE | /attacks/:id | Stops the attack referenced by the **id** parameter. Call GET /attacks to see attacks and their Ids |
+
+Note that the API is also secured via Basic Auth, so you will have to supply the correctly formed url in order to call it, e.g.
+
+```curl -X POST https://furball:397degfeug@mysupercatfacts.com/attacks -d target=5103768999```
+
 # Devops
 Super CatFacts is a web service designed to be deployed via Kubernetes and to integrate with Twilio via user-supplied Twilio account credentials. From the perspective of Kubernetes, Super Catfacts is a deployment of a Catfacts Docker image and a k8s service that exposes it such that Twilio can interact with it.
 
 You will also need a domain name to map to your Kubernetes service. Once you have your CatFacts k8s service running successfully, point a DNS A record at the ipv4 address of your loadBalancer and then update config.yml such that FQDN is set to your domain name. Rebuild the image via ```build.sh```, tag and deploy it and then configure your Twilio webhooks to point to your domain name (including basic auth credentials).
 
-**E.G:** If your *domain* is catfacts.com, and your *catfactsusername* is furry and your *catfactspassword* is furB4l1, then the URL you'd enter in your Twilio dashboard as your webhooks would like something like:
+**E.G:** If your *domain* is catfacts.com, and your *catfactsusername* is furry and your *catfactspassword* is furB4l1, then the URL you'd enter in your Twilio dashboard as your webhooks would be:
 
-```https://furry:furB4l1@
+```https://furry:furB4l1@catfacts.com/call/receive```
 
+This allows Twilio to reach your service correctly and retrieve the TwiMl it renders to control the phone tree experience, etc.
 
- your config.yml's ```server.fqdn``` field should be set to ```catfacts.com```, and the full URL including
+In order to ensure your service renders the correct URLs within TwiMl, your config.yml's ```server.fqdn``` field should be set to ```catfacts.com```, in this example.
 
 # Security and authentication
 
