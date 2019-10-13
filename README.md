@@ -95,13 +95,15 @@ Note that the API is also secured via Basic Auth, so you will have to supply the
 ```curl -X POST https://furball:397degfeug@mysupercatfacts.com/attacks -d target=5103768999```
 
 # Devops
-Super CatFacts is a web service designed to be deployed via Kubernetes and to integrate with Twilio via user-supplied Twilio account credentials. From the perspective of Kubernetes, Super Catfacts is a deployment of a Catfacts Docker image and a k8s service that exposes it such that Twilio can interact with it.
+Super CatFacts is a web service designed to be deployed via Kubernetes and to integrate with Twilio via user-supplied Twilio account credentials. From the perspective of Kubernetes, Super Catfacts is a deployment of a Catfacts Docker image and a k8s service that exposes it to the public internet such that Twilio can interact with it. Note that the service is locked down via Basic Auth so that only Twilio and server administrators should be able to access it.
 
 You will also need a domain name to map to your Kubernetes service. Once you have your CatFacts k8s service running successfully, point a DNS A record at the ipv4 address of your loadBalancer and then update config.yml such that FQDN is set to your domain name. Rebuild the image via ```build.sh```, tag and deploy it and then configure your Twilio webhooks to point to your domain name (including basic auth credentials).
 
-**E.G:** If your *domain* is catfacts.com, and your *catfactsusername* is furry and your *catfactspassword* is furB4l1, then the URL you'd enter in your Twilio dashboard as your webhooks would be:
+**E.G:** If your *domain* is mysupercatfacts.com, and your *catfactsusername* is **furball** and your *catfactspassword* is **397degfeug**, then the URL you'd enter in your Twilio dashboard as your webhooks would be:
 
-```https://furry:furB4l1@catfacts.com/call/receive```
+```https://furball:397degfeug@mysupercatfacts.com/call/receive```
+
+![Example Twilio configuration](/static/img/twilio-configuration.jpg)
 
 This allows Twilio to reach your service correctly and retrieve the TwiMl it renders to control the phone tree experience, etc.
 
