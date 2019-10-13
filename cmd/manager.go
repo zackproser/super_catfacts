@@ -129,12 +129,15 @@ func (a *AttackManager) Add(atk *Attack) (*Attack, error) {
 
 // Remove terminates an existing attack
 func (a *AttackManager) Remove(t string) (bool, *Attack) {
-	valid, num := validateNumber(t)
-	if valid == false {
-		return false, nil
-	}
 	for i, atk := range a.repository {
-		if atk.Target == num {
+		valid, formattedAtkNumber := validateNumber(atk.Target)
+		if !valid {
+			log.WithFields(logrus.Fields{
+				"Number": t,
+			}).Debug("Error parsing phone number during lookup in Remove")
+		}
+
+		if formattedAtkNumber == t {
 			atk.Ticker.Stop()
 			a.repository[len(a.repository)-1], a.repository[i] = a.repository[i], a.repository[len(a.repository)-1]
 			a.repository = a.repository[:len(a.repository)-1]
