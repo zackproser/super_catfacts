@@ -70,7 +70,9 @@ Super CatFacts is a web service designed to be deployed via Kubernetes and to in
 
 # Security and authentication
 
-The Catfacts service 
+To prevent abuse of your service, Super CatFacts requires HTTP Basic Auth by default. In your config, you define a Basic Auth username and password, and Super CatFacts automatically requires these credentials on all API endpoints. 
+
+When configuring your URLs in the Twilio dashboard, you must supply all webhook URLs correctly formatted with the HTTP Basic Auth ```username:password```syntax, e.g: ```https://twiliousername:su3e97r7ehdgdh@mycatfactsservice.com```
 
 # Controlling your CatFacts deployment
 Management of the service (starting and stopping attacks, checking system status) is done via SMS messages to your configured Twilio phone number. You must be an admin (as configured via the Server.Admins node in config.yml) to control the service.
