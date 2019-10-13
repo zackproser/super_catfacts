@@ -65,6 +65,13 @@ Here are the configuration variables at a glance
 | twilio.sid | string  | Your SID from your Twilio dashboard | :heavy_check_mark: |
 | twilio.messageIntervalSeconds | int | The number of seconds to pause between sending text messages when attacking a target | :x: |
 
+# Devops
+Super CatFacts is a web service designed to be deployed via Kubernetes and to integrate with Twilio via user-supplied Twilio account credentials. From the perspective of Kubernetes, Super Catfacts is a deployment of a Catfacts Docker image and a k8s service that exposes it such that Twilio can interact with it. 
+
+# Security and authentication
+
+The Catfacts service 
+
 # Controlling your CatFacts deployment
 Management of the service (starting and stopping attacks, checking system status) is done via SMS messages to your configured Twilio phone number. You must be an admin (as configured via the Server.Admins node in config.yml) to control the service.
 
