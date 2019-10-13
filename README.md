@@ -1,6 +1,14 @@
 # Super CatFacts Service
 A ridiculously over-engineered CatFacts prank service written in Golang and deployed via Kubernetes and Google Cloud
 
+# Prank at a glance
+
+As a service administrator, you text the phone number of your prank target to the service. The service then launches an attack on your target - and allows you to monitor and stop it at will.
+
+Your target is then entered into CatFacts hell. They'll receive text messages at the interval you've configured (defaults to 30 seconds) and if they text the number back they'll get one of several infuriating messages about their command not being recognized or receiving additional CatFacts for free.
+
+![Commanding your catfacts service](/static/img/initiate.png)
+
 # Pre-requisites
 * A funded Twilio account
 * A valid Twilio phone number
