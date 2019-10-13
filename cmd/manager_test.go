@@ -81,3 +81,65 @@ func TestMgrRemove(t *testing.T) {
 	}
 
 }
+
+func TestMgrStatus(t *testing.T) {
+	atkManager := new(AttackManager)
+
+	testAttack, _ := atkManager.Add(&Attack{
+		Target:    "1111111111",
+		StartTime: time.Now(),
+	})
+
+	status := atkManager.getStatus()
+
+	if status == nil {
+		t.Fail()
+	}
+
+	var found = false
+
+	for _, target := range status.Targets {
+		if testAttack.Target == target {
+			found = true
+		}
+	}
+
+	if found == false {
+		t.Fail()
+	}
+
+}
+
+func TestIsAttackRunning(t *testing.T) {
+	atkManager := new(AttackManager)
+
+	testAttack, _ := atkManager.Add(&Attack{
+		Target:    "3333333333",
+		StartTime: time.Now(),
+	})
+
+	running, atk := atkManager.attackRunning(testAttack.Target)
+
+	if !running {
+		t.Fail()
+	}
+
+	if atk == nil {
+		t.Fail()
+	}
+
+	testNonAddedAttack := &Attack{
+		Target:    "4444444444",
+		StartTime: time.Now(),
+	}
+
+	nonIsRunning, nonAtk := atkManager.attackRunning(testNonAddedAttack.Target)
+
+	if nonIsRunning == true {
+		t.Fail()
+	}
+
+	if nonAtk != nil {
+		t.Fail()
+	}
+}
