@@ -140,5 +140,9 @@ Text a US phone number to your Twilio CatFacts service number. The service will 
 # Get attack status
 Text "Status" to your Twilio CatFacts service number. The service will respond with a read out of all current attacks, their message counts, and start times.
 
+![Getting service status](/static/img/status.png)
+
 # Stop an attack
 Text a US phone number that is already under attack to your Twilio CatFacts service number. The service will respond confirming the target is no longer being attacked
+
+![Stopping an attack](/static/img/terminate.png)
