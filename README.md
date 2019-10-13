@@ -13,7 +13,7 @@ Your target is then entered into CatFacts hell. They'll receive text messages at
 
 ![Texting back](/static/img/3rd.png)
 
-If they call the number, they get an additionally hellish phone tree experience, complete with piercing angry meowing sounds.
+If they call the number, they get an additionally hellish phone tree experience, complete with piercing angry meowing sounds. [Watch a recording of what the phone tree is like here.](https://www.youtube.com/watch?v=_Tx5LtcOIgg)
 
 # Pre-requisites
 * A funded Twilio account
