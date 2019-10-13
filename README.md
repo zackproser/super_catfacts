@@ -69,6 +69,15 @@ Here are the configuration variables at a glance
 # Devops
 Super CatFacts is a web service designed to be deployed via Kubernetes and to integrate with Twilio via user-supplied Twilio account credentials. From the perspective of Kubernetes, Super Catfacts is a deployment of a Catfacts Docker image and a k8s service that exposes it such that Twilio can interact with it. 
 
+You will also need a domain name to map to your Kubernetes service. Once you have your CatFacts k8s service running successfully, point a DNS A record at the ipv4 address of your loadBalancer and then update config.yml such that FQDN is set to your domain name. Rebuild the image via ```build.sh```, tag and deploy it and then configure your Twilio webhooks to point to your domain name (including basic auth credentials). 
+
+**E.G:** If your *domain* is catfacts.com, and your *catfactsusername* is furry and your *catfactspassword* is furB4l1, then the URL you'd enter in your Twilio dashboard as your webhooks would like something like: 
+
+```https://furry:furB4l1@
+
+
+ your config.yml's ```server.fqdn``` field should be set to ```catfacts.com```, and the full URL including 
+
 # Security and authentication
 
 To prevent abuse of your service, Super CatFacts requires HTTP Basic Auth by default. In your config, you define a Basic Auth username and password, and Super CatFacts automatically requires these credentials on all API endpoints. 
