@@ -9,7 +9,7 @@ As a service administrator, you text the phone number of your prank target to th
 
 This service prioritizes expediency and precision of command, because successful offensives are founded upon the core principles of **speed**, **violence**, and **momentum**.
 
-Your target is then entered into CatFacts hell. They'll receive text messages at the interval you've configured (defaults to 30 seconds) and if they text the number back they'll get one of several infuriating messages about their command not being recognized or receiving additional CatFacts for free.
+Your target is thusly entered into CatFacts hell. They'll receive text messages at the interval you've configured (defaults to 30 seconds) and if they text the number back they'll get one of several infuriating messages about their command not being recognized or receiving additional CatFacts for free.
 
 ![Receiving CatFacts](/static/img/2nd.png)
 
