@@ -29,10 +29,10 @@ If they call the number, they get an additionally hellish phone tree experience,
 # Clone the repo and build the binary
 git clone github.com/zackproser/super_catfacts
 
+cd super_catfacts
+
 # Run tests
 go test -v ./...
-
-cd super_catfacts
 
 # Create a config.yml in the working directory, filling in the required env variables (see example below)
 vi config.yml
