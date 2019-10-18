@@ -1,12 +1,11 @@
-module super_catfacts
+module github.com/zackproser/super_catfacts
 
 go 1.13
 
 require (
 	bitbucket.org/ckvist/twilio v0.0.0-20170512072134-13c593a1721b
-	github.com/google/martian v2.1.0+incompatible // indirect
 	github.com/inconshreveable/log15 v0.0.0-20180818164646-67afb5ed74ec // indirect
-	github.com/julienschmidt/httprouter v1.2.0
+	github.com/julienschmidt/httprouter v1.3.0
 	github.com/kevinburke/go-types v0.0.0-20181103050146-31250f49d75a // indirect
 	github.com/kevinburke/go.uuid v1.2.0 // indirect
 	github.com/kevinburke/rest v0.0.0-20190424050029-77c0c82d0ded // indirect

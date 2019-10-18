@@ -1,7 +1,7 @@
 package main
 
 import (
-	"super_catfacts/cmd"
+	"github.com/zackproser/super_catfacts/cmd"
 )
 
 func main() {
