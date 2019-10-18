@@ -2,7 +2,7 @@
 A ridiculously over-engineered CatFacts prank service written in Golang and deployed via Kubernetes and Google Cloud.
 
 [![Build Status](https://travis-ci.com/zackproser/super_catfacts.svg?branch=master "Travis CI Status")](https://travis-ci.com/zackproser/super_catfacts)
-[![Go Report Card](https://goreportcard.com/badge/github.com/zackproser/super_catfacts)](https://goreportcard.com/report/github.com/zackproser/super_catfacts) [![GoDoc](https://godoc.org/github.com/zackproser/super_catfacts?status.svg)](https://godoc.org/github.com/zackproser/super_catfacts)
+[![Go Report Card](https://goreportcard.com/badge/github.com/zackproser/super_catfacts)](https://goreportcard.com/report/github.com/zackproser/super_catfacts) [![GoDoc](https://godoc.org/github.com/zackproser/super_catfacts?status.svg)](https://godoc.org/github.com/zackproser/super_catfacts/cmd)
 
 # Prank at a glance
 
