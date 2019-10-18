@@ -1,6 +1,8 @@
 # Super CatFacts Service
 A ridiculously over-engineered CatFacts prank service written in Golang and deployed via Kubernetes and Google Cloud.
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/zackproser/super_catfacts)](https://goreportcard.com/report/github.com/zackproser/super_catfacts)
+
 # Prank at a glance
 
 As a service administrator, you text the phone number of your prank target to the service. The service then launches an attack on your target - and allows you to monitor and stop it at will.
@@ -82,16 +84,16 @@ Here are the configuration variables at a glance
 | twilio.sid | string  | Your SID from your Twilio dashboard | :heavy_check_mark: |
 | twilio.messageIntervalSeconds | int | The number of seconds to pause between sending text messages when attacking a target | :x: |
 
-# Deployment 
-Out of the box, this service runs very via Kubernetes on Google Cloud, though it could be easily modified to run in any other Kubernetes cluster. That said, here are the high level steps to deploying this via Google Cloud, which are also spelled out in the quickstart above: 
+# Deployment
+Out of the box, this service runs very via Kubernetes on Google Cloud, though it could be easily modified to run in any other Kubernetes cluster. That said, here are the high level steps to deploying this via Google Cloud, which are also spelled out in the quickstart above:
 
-1. [Complete the steps to get a working Google Cloud Kubernetes cluster and authenticate with it via ```gcloud``` and ```kubectl```](https://cloud.google.com/kubernetes-engine/docs/quickstart) 
-2. Check out the repository 
+1. [Complete the steps to get a working Google Cloud Kubernetes cluster and authenticate with it via ```gcloud``` and ```kubectl```](https://cloud.google.com/kubernetes-engine/docs/quickstart)
+2. Check out the repository
 3. Ensure tests pass and that go build returns without error
 4. Create a config.yml file in the root of the working directory, and configure it as explained above
-5. Run the build.sh script to get a Docker image with your specific config file baked into the container 
+5. Run the build.sh script to get a Docker image with your specific config file baked into the container
 6. [Tag the resulting image for Google Container registry and push it](https://cloud.google.com/container-registry/docs/pushing-and-pulling)
-7. Update your deployment.yaml so that the ```spec.containers.image``` node points at your pushed image 
+7. Update your deployment.yaml so that the ```spec.containers.image``` node points at your pushed image
 8. ```kubectl apply -f k8s/deployment.yaml```
 9. Ensure the container came up and is healthy without restarts ```kubectl get po,svc```
 10. Monitor logs with ```kubectl logs -f <your-deployment-id-from-previous-step>```
