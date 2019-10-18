@@ -129,11 +129,11 @@ func stopAttack(target string) (bool, *Attack) {
 	success, attack := attackMgr.Remove(target)
 	if success {
 		return true, attack
-	} else {
-		return false, nil
 	}
+	return false, nil
 }
 
+// StopAttack cancels a running attack after looking it up by its unique ID
 func StopAttack(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 	attackID := ps.ByName("id")
