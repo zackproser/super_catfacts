@@ -54,7 +54,7 @@ func handleInboundSMS(w http.ResponseWriter, r *http.Request, ps httprouter.Para
 		handleAdminSMSRequest(sender, body, w)
 	} else {
 
-		answer := getRandomAccountResponse()
+		answer := getRandomStringFromSlice(responses)
 
 		log.Debug("Sending random account response SMS")
 
@@ -142,7 +142,7 @@ func renderPhoneTree(w http.ResponseWriter, r *http.Request, ps httprouter.Param
 		msg, err := client.Messages.SendMessage(
 			Config.Twilio.Number,
 			formatted,
-			getRandomCatfact(),
+			getRandomStringFromSlice(catfacts),
 			nil,
 		)
 

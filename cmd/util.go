@@ -43,15 +43,11 @@ func getNextCatfact(i int) string {
 	if i < len(catfacts) {
 		return catfacts[i]
 	}
-	return getRandomCatfact()
+	return getRandomStringFromSlice(catfacts)
 }
 
-func getRandomCatfact() string {
-	return catfacts[rand.Intn(len(catfacts))]
-}
-
-func getRandomAccountResponse() string {
-	return responses[rand.Intn(len(responses))]
+func getRandomStringFromSlice(s []string) string {
+	return s[rand.Intn(len(s))]
 }
 
 func validateNumber(t string) (bool, string) {
