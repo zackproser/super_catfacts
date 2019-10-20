@@ -86,7 +86,7 @@ Here are the configuration variables at a glance
 | twilio.messageIntervalSeconds | int | The number of seconds to pause between sending text messages when attacking a target | :x: |
 
 # Deployment
-Out of the box, this service runs very via Kubernetes on Google Cloud, though it could be easily modified to run in any other Kubernetes cluster. That said, here are the high level steps to deploying this via Google Cloud, which are also spelled out in the quickstart above:
+Out of the box, this service runs smoothly via Kubernetes on Google Cloud, though it could be easily modified to run in any other Kubernetes cluster. That said, here are the high level steps to deploying this via Google Cloud, which are also spelled out in the quickstart above:
 
 1. [Complete the steps to get a working Google Cloud Kubernetes cluster and authenticate with it via ```gcloud``` and ```kubectl```](https://cloud.google.com/kubernetes-engine/docs/quickstart)
 2. Check out the repository
