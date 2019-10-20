@@ -138,7 +138,6 @@ func (a *AttackManager) Remove(t string) (bool, *Attack) {
 		}
 
 		if formattedAtkNumber == t {
-			atk.Ticker.Stop()
 			a.repository[len(a.repository)-1], a.repository[i] = a.repository[i], a.repository[len(a.repository)-1]
 			a.repository = a.repository[:len(a.repository)-1]
 		}
@@ -151,7 +150,6 @@ func (a *AttackManager) Remove(t string) (bool, *Attack) {
 func (a *AttackManager) RemoveByID(id int) (bool, *Attack) {
 	for i, atk := range a.repository {
 		if atk.ID == id {
-			atk.Ticker.Stop()
 			a.repository[len(a.repository)-1], a.repository[i] = a.repository[i], a.repository[len(a.repository)-1]
 			a.repository = a.repository[:len(a.repository)-1]
 			return true, atk

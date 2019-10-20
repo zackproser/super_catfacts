@@ -13,7 +13,6 @@ type Attack struct {
 	Target    string    `json:target`
 	StartTime time.Time `json:starttime`
 	MsgCount  int       `json:msgcount`
-	Ticker    time.Ticker
 }
 
 // AttackResponse is a pared down representation of an attack suitable for JSON serialization, etc
