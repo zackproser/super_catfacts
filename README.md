@@ -1,5 +1,5 @@
 # Super CatFacts Service
-A ridiculously over-engineered CatFacts prank service written in Golang and deployed via Kubernetes and Google Cloud.
+A ridiculously over-engineered CatFacts prank service written in Golang and deployed via Kubernetes and Google Cloud. You can [read a technical deep-dive on this project here](https://medium.com/swlh/building-a-catfacts-pranking-service-in-golang-5b51e8721fe2?source=friends_link&sk=8b97968fa6fdbf51cbb0bd3b5983c674).
 
 [![Build Status](https://travis-ci.com/zackproser/super_catfacts.svg?branch=master "Travis CI Status")](https://travis-ci.com/zackproser/super_catfacts)
 [![Go Report Card](https://goreportcard.com/badge/github.com/zackproser/super_catfacts)](https://goreportcard.com/report/github.com/zackproser/super_catfacts) [![GoDoc](https://godoc.org/github.com/zackproser/super_catfacts?status.svg)](https://godoc.org/github.com/zackproser/super_catfacts/cmd)
