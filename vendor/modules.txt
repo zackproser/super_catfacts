@@ -21,7 +21,7 @@ github.com/hashicorp/hcl/json/token
 github.com/inconshreveable/log15
 # github.com/inconshreveable/mousetrap v1.0.0
 github.com/inconshreveable/mousetrap
-# github.com/julienschmidt/httprouter v1.2.0
+# github.com/julienschmidt/httprouter v1.3.0
 github.com/julienschmidt/httprouter
 # github.com/kevinburke/go-types v0.0.0-20181103050146-31250f49d75a
 github.com/kevinburke/go-types
@@ -31,8 +31,6 @@ github.com/kevinburke/go.uuid
 github.com/kevinburke/rest
 # github.com/kevinburke/twilio-go v0.0.0-20190630185733-fe05957cdaf8
 github.com/kevinburke/twilio-go
-# github.com/konsorten/go-windows-terminal-sequences v1.0.1
-github.com/konsorten/go-windows-terminal-sequences
 # github.com/magiconair/properties v1.8.0
 github.com/magiconair/properties
 # github.com/mattn/go-colorable v0.1.4
@@ -43,7 +41,7 @@ github.com/mattn/go-isatty
 github.com/mitchellh/mapstructure
 # github.com/pelletier/go-toml v1.2.0
 github.com/pelletier/go-toml
-# github.com/sirupsen/logrus v1.4.2
+# github.com/sirupsen/logrus v1.8.3
 github.com/sirupsen/logrus
 # github.com/spf13/afero v1.1.2
 github.com/spf13/afero
@@ -66,8 +64,10 @@ github.com/ttacon/libphonenumber
 golang.org/x/net/context
 # golang.org/x/sync v0.0.0-20181221193216-37e7f081c4d4
 golang.org/x/sync/errgroup
-# golang.org/x/sys v0.0.0-20191008105621-543471e840be
+# golang.org/x/sys v0.0.0-20220715151400-c0bba94af5f8
+golang.org/x/sys/internal/unsafeheader
 golang.org/x/sys/unix
+golang.org/x/sys/windows
 # golang.org/x/text v0.3.0
 golang.org/x/text/transform
 golang.org/x/text/unicode/norm
